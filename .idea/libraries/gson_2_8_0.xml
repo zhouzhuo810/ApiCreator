@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="gson-2.8.0">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/../ApiCreator/gson-2.8.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../ApiCreator/json-20140107.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
