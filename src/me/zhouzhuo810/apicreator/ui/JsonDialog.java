@@ -79,7 +79,7 @@ public class JsonDialog extends JDialog {
                         ApiEntity.ModulesBean modulesBean = modules.get(i);
                         //全局参数
                         String requestArgs = modulesBean.getRequestArgs();
-                        if (requestArgs != null) {
+                        if (requestArgs != null && !requestArgs.equals("[]")) {
                             ArgEntity argEntity = gson.fromJson("{\"data\":" + requestArgs + "}", ArgEntity.class);
                             if (argEntity != null && argEntity.getData() != null) {
                                 //有全局参数
@@ -500,6 +500,7 @@ public class JsonDialog extends JDialog {
             }
         } catch (Exception e) {
             e.printStackTrace();
+            System.out.println("格式解析异常");
         }
 
         dispose();
@@ -511,93 +512,99 @@ public class JsonDialog extends JDialog {
     private void generateJavaBean2(JSONArray jsonArray, StringBuilder sb) {
         for (int i = 0; i < jsonArray.length(); i++) {
             JSONObject jsonObject = jsonArray.getJSONObject(i);
-            String name = jsonObject.getString("name");
-            String type = jsonObject.getString("type");
-            String desc = null;
-            try {
-                desc = jsonObject.getString("description");
-            } catch (Exception e) {
-
-            }
-            System.out.println("type="+type+", name="+name);
-            switch (type) {
-                case "number":
-                    sb.append("\n       private int ").append(name).append("; ").append(desc == null ? "" : " //" + desc);
-                    //setter
-                    sb.append("\n       public void set").append(name.substring(0, 1).toUpperCase()).append(name.substring(1, name.length())).append("(int ").append(name).append(") {");
-                    sb.append("\n           this.").append(name).append(" = ").append(name).append(";");
-                    sb.append("\n       }");
-                    //getter
-                    sb.append("\n       public int get").append(name.substring(0, 1).toUpperCase()).append(name.substring(1, name.length())).append("() {");
-                    sb.append("\n           return ").append(name).append(";");
-                    sb.append("\n       }");
-
-                    break;
-                case "string":
-                    generateString(name, desc, sb);
-                    break;
-                case "object":
-                    sb.append("\n       private ").append(name.substring(0, 1).toUpperCase()).append(name.substring(1, name.length())).append("Entity").append(" ").append(name).append(";");
-
-                    //setter
-                    sb.append("\n       public void set").append(name.substring(0, 1).toUpperCase()).append(name.substring(1, name.length())).append("(")
-                            .append(name.substring(0, 1).toUpperCase()).append(name.substring(1, name.length())).append("Entity ").append(name).append(") {");
-                    sb.append("\n           this.").append(name).append(" = ").append(name).append(";");
-                    sb.append("\n       }");
-                    //getter
-                    sb.append("\n       public ").append(name.substring(0, 1).toUpperCase()).append(name.substring(1, name.length())).append("Entity")
-                            .append(" get").append(name.substring(0, 1).toUpperCase()).append(name.substring(1, name.length())).append("() {");
-                    sb.append("\n           return ").append(name).append(";");
-                    sb.append("\n       }");
-
-                    sb.append("\n       public static class ").append(name.substring(0, 1).toUpperCase()).append(name.substring(1, name.length())).append("Entity").append(" {");
-                    JSONArray children = jsonObject.getJSONArray("children");
-                    if (children != null && children.length() > 0) {
-                        for (int j = 0; j < children.length(); j++) {
-                            JSONArray child = children.getJSONObject(j).getJSONArray("children");
-                            if (child != null && child.length() > 0) {
-                                generateObj(children.getJSONObject(j).getString("name"), sb);
-                                generateJavaBean2(child, sb);
-                                sb.append("\n       }");
-                            } else {
-                                try {
-                                    String d = children.getJSONObject(j).getString("description");
-                                    generateString(children.getJSONObject(j).getString("name"), d, sb);
-                                } catch (Exception e) {
-                                    generateString(children.getJSONObject(j).getString("name"), null, sb);
-                                }
-                            }
-                        }
-                    }
-                    sb.append("\n       }");
-                    break;
-                case "array[object]":
-
-                    sb.append("\n       private List<").append(name.substring(0, 1).toUpperCase()).append(name.substring(1, name.length())).append("Entity").append("> ").append(name).append(";");
-
-                    //setter
-                    sb.append("\n       public void set").append(name.substring(0, 1).toUpperCase()).append(name.substring(1, name.length())).append("(List<")
-                            .append(name.substring(0, 1).toUpperCase()).append(name.substring(1, name.length())).append("Entity").append("> ").append(name).append(") {");
-                    sb.append("\n           this.").append(name).append(" = ").append(name).append(";");
-                    sb.append("\n       }");
-                    //getter
-                    sb.append("\n       public List<").append(name.substring(0, 1).toUpperCase()).append(name.substring(1, name.length())).append("Entity")
-                            .append("> get").append(name.substring(0, 1).toUpperCase()).append(name.substring(1, name.length())).append("() {");
-                    sb.append("\n           return ").append(name).append(";");
-                    sb.append("\n       }");
-
-                    sb.append("\n       public static class ").append(name.substring(0, 1).toUpperCase()).append(name.substring(1, name.length())).append("Entity").append(" {");
-                    JSONArray children2 = jsonObject.getJSONArray("children");
-                    if (children2 != null && children2.length() > 0) {
-                        generateJavaBean2(children2, sb);
-                    }
-                    sb.append("\n       }");
-
-                    break;
-            }
-
+            generateJavaBean3(jsonObject, sb);
         }
 
+    }
+
+    private void generateJavaBean3(JSONObject jsonObject, StringBuilder sb) {
+
+        String name = jsonObject.getString("name");
+        String type = jsonObject.getString("type");
+        String desc = null;
+        try {
+            desc = jsonObject.getString("description");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        System.out.println("type="+type+", name="+name);
+        switch (type) {
+            case "number":
+                sb.append("\n       private int ").append(name).append("; ").append(desc == null ? "" : " //" + desc);
+                //setter
+                sb.append("\n       public void set").append(name.substring(0, 1).toUpperCase()).append(name.substring(1, name.length())).append("(int ").append(name).append(") {");
+                sb.append("\n           this.").append(name).append(" = ").append(name).append(";");
+                sb.append("\n       }");
+                //getter
+                sb.append("\n       public int get").append(name.substring(0, 1).toUpperCase()).append(name.substring(1, name.length())).append("() {");
+                sb.append("\n           return ").append(name).append(";");
+                sb.append("\n       }");
+
+                break;
+            case "string":
+                generateString(name, desc, sb);
+                break;
+            case "object":
+                sb.append("\n       private ").append(name.substring(0, 1).toUpperCase()).append(name.substring(1, name.length())).append("Entity").append(" ").append(name).append(";");
+
+                //setter
+                sb.append("\n       public void set").append(name.substring(0, 1).toUpperCase()).append(name.substring(1, name.length())).append("(")
+                        .append(name.substring(0, 1).toUpperCase()).append(name.substring(1, name.length())).append("Entity ").append(name).append(") {");
+                sb.append("\n           this.").append(name).append(" = ").append(name).append(";");
+                sb.append("\n       }");
+                //getter
+                sb.append("\n       public ").append(name.substring(0, 1).toUpperCase()).append(name.substring(1, name.length())).append("Entity")
+                        .append(" get").append(name.substring(0, 1).toUpperCase()).append(name.substring(1, name.length())).append("() {");
+                sb.append("\n           return ").append(name).append(";");
+                sb.append("\n       }");
+
+                sb.append("\n       public static class ").append(name.substring(0, 1).toUpperCase()).append(name.substring(1, name.length())).append("Entity").append(" {");
+                JSONArray children = jsonObject.getJSONArray("children");
+                if (children != null && children.length() > 0) {
+                    for (int j = 0; j < children.length(); j++) {
+                        JSONObject jsonObject1 = children.getJSONObject(j);
+                        generateJavaBean3(jsonObject1, sb);
+/*                        JSONArray child = children.getJSONObject(j).getJSONArray("children");
+                        if (child != null && child.length() > 0) {
+                            generateObj(children.getJSONObject(j).getString("name"), sb);
+                            generateJavaBean2(child, sb);
+                            sb.append("\n       }");
+                        } else {
+                            try {
+                                String d = children.getJSONObject(j).getString("description");
+                                generateString(children.getJSONObject(j).getString("name"), d, sb);
+                            } catch (Exception e) {
+                                generateString(children.getJSONObject(j).getString("name"), null, sb);
+                            }
+                        }*/
+                    }
+                }
+                sb.append("\n       }");
+                break;
+            case "array[object]":
+
+                sb.append("\n       private List<").append(name.substring(0, 1).toUpperCase()).append(name.substring(1, name.length())).append("Entity").append("> ").append(name).append(";");
+
+                //setter
+                sb.append("\n       public void set").append(name.substring(0, 1).toUpperCase()).append(name.substring(1, name.length())).append("(List<")
+                        .append(name.substring(0, 1).toUpperCase()).append(name.substring(1, name.length())).append("Entity").append("> ").append(name).append(") {");
+                sb.append("\n           this.").append(name).append(" = ").append(name).append(";");
+                sb.append("\n       }");
+                //getter
+                sb.append("\n       public List<").append(name.substring(0, 1).toUpperCase()).append(name.substring(1, name.length())).append("Entity")
+                        .append("> get").append(name.substring(0, 1).toUpperCase()).append(name.substring(1, name.length())).append("() {");
+                sb.append("\n           return ").append(name).append(";");
+                sb.append("\n       }");
+
+                sb.append("\n       public static class ").append(name.substring(0, 1).toUpperCase()).append(name.substring(1, name.length())).append("Entity").append(" {");
+                JSONArray children2 = jsonObject.getJSONArray("children");
+                if (children2 != null && children2.length() > 0) {
+                    generateJavaBean2(children2, sb);
+                }
+                sb.append("\n       }");
+
+                break;
+        }
     }
 
     private void generateString(String name ,String desc, StringBuilder sb) {
