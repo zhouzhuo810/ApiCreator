@@ -2,6 +2,9 @@ package me.zhouzhuo810.apicreator.ui;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.intellij.notification.Notification;
+import com.intellij.notification.NotificationType;
+import com.intellij.notification.Notifications;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.IdeActions;
 import com.intellij.openapi.project.Project;
@@ -28,7 +31,7 @@ public class JsonDialog extends JDialog {
     private Project project;
     private AnActionEvent event;
 
-    public JsonDialog(String path, String packageName,  AnActionEvent e) {
+    public JsonDialog(String path, String packageName, AnActionEvent e) {
 
         this.path = path;
         this.packageName = packageName;
@@ -136,7 +139,7 @@ public class JsonDialog extends JDialog {
                                             sb.append("\n * ").append(foldersBean.getName());
                                             sb.append("\n */");
                                             sb.append("\npublic interface Api").append(i1).append(" {");
-                                            sbApi.append("\n    private static final String SERVER_IP").append(i1).append(" = ").append("\"").append(ip == null ? "":ip).append("\"").append(";");
+                                            sbApi.append("\n    private static final String SERVER_IP").append(i1).append(" = ").append("\"").append(ip == null ? "" : ip).append("\"").append(";");
                                             sbApi.append("\n    private static Api").append(i1).append(" api").append(i1).append(";");
                                             sbApi.append("\n    public static Api").append(i1).append(" getApi").append(i1).append("(Context context) {");
                                             sbApi.append("\n        if (api").append(i1).append(" == null) {");
@@ -170,8 +173,6 @@ public class JsonDialog extends JDialog {
                                             sbApi.append("\n        return api").append(i1).append(";");
                                             sbApi.append("\n    }");
                                             sbApi.append("\n\n");
-
-
 
 
                                             //接口
@@ -221,11 +222,10 @@ public class JsonDialog extends JDialog {
                                                         JSONArray root = new JSONArray(responseData);
                                                         generateJavaBean2(root, sbEntity);
                                                         sbEntity.append("\n}");
-                                                        System.out.println(sbEntity.toString());
                                                         FileUtil.writeFile(path + File.separator + "entity", beanClazz + ".java", sbEntity.toString());
                                                     } catch (Exception e) {
                                                         e.printStackTrace();
-                                                        System.out.println(url + "接口的返回json实例解析异常");
+                                                        showError(url + "接口的返回json实例解析异常");
                                                     }
 
                                                     //TODO 创建实体类
@@ -407,7 +407,6 @@ public class JsonDialog extends JDialog {
 
                                             //接口地址
                                             String url = childrenBean.getUrl();
-                                            System.out.println(url);
 
                                             //方法描述
                                             String desc = childrenBean.getDescription();
@@ -441,7 +440,7 @@ public class JsonDialog extends JDialog {
                                                 FileUtil.writeFile(path + File.separator + "entity", beanClazz + ".java", sbEntity.toString());
                                             } catch (Exception e) {
                                                 e.printStackTrace();
-                                                System.out.println(url + "接口的返回json实例解析异常");
+                                                showError(url + "接口的返回json实例解析异常");
                                             }
 
                                             //TODO 创建实体类
@@ -500,15 +499,18 @@ public class JsonDialog extends JDialog {
                 }
 
             } else {
-                System.out.println("格式解析异常");
+                showError("格式解析异常");
             }
         } catch (Exception e) {
             e.printStackTrace();
-            System.out.println("格式解析异常");
+            showError("格式解析异常"+e.toString());
         }
 
         if (event != null) {
+            /*文件同步*/
             event.getActionManager().getAction(IdeActions.ACTION_SYNCHRONIZE).actionPerformed(event);
+            /*代码格式化*/
+            event.getActionManager().getAction(IdeActions.ACTION_EDITOR_REFORMAT).actionPerformed(event);
         }
 
         dispose();
@@ -535,7 +537,7 @@ public class JsonDialog extends JDialog {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        System.out.println("type="+type+", name="+name);
+        System.out.println("type=" + type + ", name=" + name);
         switch (type) {
             case "number":
                 sb.append("\n       private int ").append(name).append("; ").append(desc == null ? "" : " //" + desc);
@@ -615,7 +617,7 @@ public class JsonDialog extends JDialog {
         }
     }
 
-    private void generateString(String name ,String desc, StringBuilder sb) {
+    private void generateString(String name, String desc, StringBuilder sb) {
         sb.append("\n       private String ").append(name).append("; ").append(desc == null ? "" : " //" + desc);
         //setter
         sb.append("\n       public void set").append(name.substring(0, 1).toUpperCase()).append(name.substring(1, name.length())).append("(String ").append(name).append(") {");
@@ -703,6 +705,14 @@ public class JsonDialog extends JDialog {
     private void onCancel() {
         // add your code here if necessary
         dispose();
+    }
+
+    private void showHint(String msg) {
+        Notifications.Bus.notify(new Notification("StringKiller", "StringKiller", msg, NotificationType.WARNING));
+    }
+
+    private void showError(String msg) {
+        Notifications.Bus.notify(new Notification("StringKiller", "StringKiller", msg, NotificationType.ERROR));
     }
 
 }
