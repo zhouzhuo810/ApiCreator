@@ -2,6 +2,8 @@ package me.zhouzhuo810.apicreator.ui;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.IdeActions;
 import com.intellij.openapi.project.Project;
 import me.zhouzhuo810.apicreator.bean.ApiEntity;
 import me.zhouzhuo810.apicreator.bean.ArgEntity;
@@ -24,12 +26,14 @@ public class JsonDialog extends JDialog {
     private String path;
     private String packageName;
     private Project project;
+    private AnActionEvent event;
 
-    public JsonDialog(String path, String packageName, Project project) {
+    public JsonDialog(String path, String packageName,  AnActionEvent e) {
 
         this.path = path;
         this.packageName = packageName;
-        this.project = project;
+        this.project = e.getProject();
+        this.event = e;
 
         setContentPane(contentPane);
         setModal(true);
@@ -501,6 +505,10 @@ public class JsonDialog extends JDialog {
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println("格式解析异常");
+        }
+
+        if (event != null) {
+            event.getActionManager().getAction(IdeActions.ACTION_SYNCHRONIZE).actionPerformed(event);
         }
 
         dispose();

@@ -7,15 +7,16 @@ A Android develop tools for API Creatirng.
 
 ## 功能介绍
 
-方式1: 将小幺鸡接口文档转成Android实体类和RxJava2+Retrofit2+Okhttp3 Api。
+方式1 (推荐): 将小幺鸡替换成我的开源项目[ZzApiDoc](https://github.com/zhouzhuo810/ZzApiDoc)和[ZzApiDoc-Android](https://github.com/zhouzhuo810/ZzApiDoc-Android)。
 
-方式2：将小幺鸡替换成我的开源项目[ZzApiDoc](https://github.com/zhouzhuo810/ZzApiDoc)和[ZzApiDoc-Android](https://github.com/zhouzhuo810/ZzApiDoc-Android)
+方式2：将小幺鸡接口文档(旧版本)转成Android实体类和RxJava2+Retrofit2+Okhttp3 Api。
 
 ## 用法介绍
 
-- 登陆http://www.xiaoyaoji.cn/
-- 编写接口文档
-- 选中某个项目文档，导出JSON格式
+- 首次使用[ZzApiDoc-Android](https://github.com/zhouzhuo810/ZzApiDoc-Android) 需要先配置服务器地址。
+- 注册并登陆这个App
+- 编写接口文档。
+- 长按某个项目文档，导出JSON格式
 - 右键Android Studio某个包名，选择Api Creator。
 - 复制JSON文件内容到对话框，点击OK。
 - 刷新改包名。

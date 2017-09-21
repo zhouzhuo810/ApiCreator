@@ -18,15 +18,16 @@ public class MainAction extends AnAction {
 
         VirtualFile data = e.getData(PlatformDataKeys.VIRTUAL_FILE);
         String path = data.getPath();
-        String packagename = path.substring(path.indexOf("main/java")+10, path.length()).replaceAll("/", ".");
+        String packagename = path.substring(path.indexOf("main/java") + 10, path.length()).replaceAll("/", ".");
 
         System.out.println(path);
         System.out.println(packagename);
 
-        JsonDialog jsonDialog = new JsonDialog(path, packagename, e.getProject());
+        JsonDialog jsonDialog = new JsonDialog(path, packagename, e);
         jsonDialog.setSize(620, 440);
         jsonDialog.setAlwaysOnTop(true);
         jsonDialog.setVisible(true);
+
 
     }
 
