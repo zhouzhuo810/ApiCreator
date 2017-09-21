@@ -11,6 +11,8 @@ A Android develop tools for API Creatirng.
 
 方式2：将小幺鸡接口文档(旧版本)转成Android实体类和RxJava2+Retrofit2+Okhttp3 Api。
 
+## 插件下载地址：[点这里](https://github.com/zhouzhuo810/ApiCreator/blob/master/ApiCreator.zip)
+
 ## 用法介绍
 
 - 首次使用[ZzApiDoc-Android](https://github.com/zhouzhuo810/ZzApiDoc-Android) 需要先配置服务器地址。
